@@ -13,7 +13,7 @@ const sampleStudents = [
     { name: "Mason Rodriguez", attendance: 82, assignment: 80, mid: 78, final: 83, grade: "B" },
 ];
 
-export default function TeacherPerformance() {
+export default function TeacherDashboard() {
     const [students] = useState(sampleStudents);
 
     const total = students.length;

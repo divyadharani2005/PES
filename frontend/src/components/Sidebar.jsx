@@ -6,6 +6,7 @@ export default function Sidebar() {
   const location = useLocation();
 
   const handleLogout = () => {
+    localStorage.clear();
     navigate("/");
   };
 

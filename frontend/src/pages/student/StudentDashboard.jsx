@@ -26,6 +26,7 @@ export default function StudentDashboard() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
+    localStorage.clear();
     navigate("/");
   };
   const performanceData = [

@@ -1,122 +1,168 @@
-import { useState } from "react";
-import { Pencil, AlertTriangle, Users } from "lucide-react";
+import React, { useState } from "react";
+import {
+    Users,
+    CalendarDays,
+    AlertTriangle,
+    Search,
+    Pencil,
+    Download,
+    X,
+} from "lucide-react";
 import Sidebar from "../../components/Sidebar";
 
 const sampleStudents = [
-    { name: "Emma Johnson", attendance: 95, assignment: 88, mid: 85, final: 92, grade: "A" },
-    { name: "Liam Smith", attendance: 78, assignment: 75, mid: 72, final: 78, grade: "B" },
-    { name: "Olivia Brown", attendance: 92, assignment: 90, mid: 88, final: 94, grade: "A" },
-    { name: "Noah Davis", attendance: 68, assignment: 65, mid: 70, final: 72, grade: "C" },
-    { name: "Ava Wilson", attendance: 88, assignment: 85, mid: 82, final: 87, grade: "B" },
-    { name: "Ethan Martinez", attendance: 55, assignment: 58, mid: 60, final: 62, grade: "D" },
-    { name: "Sophia Garcia", attendance: 98, assignment: 95, mid: 92, final: 96, grade: "A" },
-    { name: "Mason Rodriguez", attendance: 82, assignment: 80, mid: 78, final: 83, grade: "B" },
+    { id: 1, name: "Emma Johnson", attendance: 95, assignment: 88, mid: 85, final: 90, grade: "A" },
+    { id: 2, name: "Liam Smith", attendance: 72, assignment: 75, mid: 70, final: 65, grade: "B" }, // Low attendance
+    { id: 3, name: "Olivia Brown", attendance: 88, assignment: 92, mid: 90, final: 95, grade: "A" },
+    { id: 4, name: "Noah Davis", attendance: 92, assignment: 85, mid: 80, final: 82, grade: "B" },
+    { id: 5, name: "Ava Wilson", attendance: 65, assignment: 60, mid: 55, final: 58, grade: "C" }, // Low attendance & Low final
 ];
 
-export default function TeacherPerformance() {
-    const [students] = useState(sampleStudents);
+const calculateGrade = (final) => {
+    if (final >= 90) return "A";
+    if (final >= 80) return "B";
+    if (final >= 70) return "C";
+    if (final >= 60) return "D";
+    return "F";
+};
 
+export default function TeacherPerformance() {
+    const [students, setStudents] = useState(sampleStudents);
+    const [selectedStudent, setSelectedStudent] = useState(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+    const handleEdit = (student) => {
+        setSelectedStudent({ ...student });
+        setIsEditModalOpen(true);
+    };
+
+    const handleSave = () => {
+        const updatedStudent = {
+            ...selectedStudent,
+            grade: calculateGrade(selectedStudent.final)
+        };
+        setStudents(students.map(s => s.id === updatedStudent.id ? updatedStudent : s));
+        setIsEditModalOpen(false);
+    };
+
+    // Stats
     const total = students.length;
-    const lowAttendance = students.filter((s) => s.attendance < 75);
-    const avgAttendance = (
-        students.reduce((sum, s) => sum + (s.attendance || 0), 0) / Math.max(1, students.length)
-    ).toFixed(0);
-    const gradeACount = students.filter((s) => s.grade === "A").length;
+    const lowAttendance = students.filter(s => s.attendance < 75).length;
+    const avgAttendance = (students.reduce((sum, s) => sum + s.attendance, 0) / (total || 1)).toFixed(1);
 
     return (
         <div className="flex w-full min-h-screen bg-[#f3f0ff]">
             <Sidebar />
+
             <div className="flex-1 p-8">
-                <div className="mb-6">
-                    <h1 className="text-2xl font-bold">Manage Student Performance</h1>
-                    <p className="text-sm text-gray-500">Update and track student records</p>
+                <div className="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-800">Student Performance Management</h1>
+                        <p className="text-gray-500">Track and manage student academic records</p>
+                    </div>
+                    <div className="flex gap-3">
+                        <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition shadow-sm">
+                            <Download size={18} />
+                            Export Data
+                        </button>
+                    </div>
                 </div>
 
-                {lowAttendance.length > 0 && (
-                    <div className="mb-6 border border-red-200 bg-red-50 text-red-700 rounded-lg p-4">
-                        <div className="flex items-start gap-3">
-                            <div className="mt-1 text-red-600">
-                                <AlertTriangle size={18} />
-                            </div>
-                            <div>
-                                <p className="font-medium">Low Attendance Alert</p>
-                                <p className="text-sm text-gray-600">{lowAttendance.length} student(s) have attendance below 75%: {lowAttendance.map((s) => s.name).join(', ')}</p>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                <div className="grid grid-cols-3 gap-4 mb-6">
-                    <div className="p-4 bg-white rounded-lg shadow-sm border flex items-center justify-between">
+                {/* STATS OVERVIEW */}
+                <div className="grid grid-cols-3 gap-6 mb-8">
+                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
                         <div>
                             <p className="text-sm text-gray-500">Total Students</p>
-                            <p className="text-2xl font-semibold mt-2">{total}</p>
+                            <p className="text-2xl font-bold mt-1 text-gray-800">{total}</p>
                         </div>
-                        <div className="text-purple-200">
-                            <Users size={28} />
-                        </div>
-                    </div>
-
-                    <div className="p-4 bg-white rounded-lg shadow-sm border flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-gray-500">Average Attendance</p>
-                            <p className="text-2xl font-semibold mt-2">{avgAttendance}%</p>
-                        </div>
-                        <div className="text-purple-200">
-                            <Users size={28} />
+                        <div className="bg-purple-100 p-3 rounded-lg text-purple-600">
+                            <Users size={24} />
                         </div>
                     </div>
 
-                    <div className="p-4 bg-white rounded-lg shadow-sm border flex items-center justify-between">
+                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-gray-500">Students with Grade A</p>
-                            <p className="text-2xl font-semibold mt-2">{gradeACount}</p>
+                            <p className="text-sm text-gray-500">Avg Attendance</p>
+                            <p className="text-2xl font-bold mt-1 text-gray-800">{avgAttendance}%</p>
                         </div>
-                        <div className="text-purple-200">
-                            <Users size={28} />
+                        <div className="bg-blue-100 p-3 rounded-lg text-blue-600">
+                            <CalendarDays size={24} />
+                        </div>
+                    </div>
+
+                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p className="text-sm text-gray-500">Low Attendance Alerts</p>
+                            <p className="text-2xl font-bold mt-1 text-red-500">{lowAttendance}</p>
+                        </div>
+                        <div className="bg-red-100 p-3 rounded-lg text-red-600">
+                            <AlertTriangle size={24} />
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-                    <div className="p-4 border-b">
-                        <h2 className="font-semibold">Student Records</h2>
-                        <p className="text-xs text-gray-500">Click Edit to update attendance and marks</p>
+                {/* STUDENT TABLE */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="p-4 border-b border-gray-100 flex justify-between items-center">
+                        <h2 className="font-semibold text-gray-700">Student Performance Records</h2>
+                        <div className="relative">
+                            <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                                <Search size={16} />
+                            </span>
+                            <input
+                                type="text"
+                                placeholder="Search student..."
+                                className="pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                            />
+                        </div>
                     </div>
 
-                    <div className="p-4 overflow-x-auto">
-                        <table className="min-w-full text-left">
-                            <thead className="text-xs text-gray-500 bg-gray-50">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead className="bg-gray-50 text-xs text-gray-500 uppercase font-semibold">
                                 <tr>
-                                    <th className="p-3">ID</th>
-                                    <th className="p-3">STUDENT NAME</th>
-                                    <th className="p-3">ATTENDANCE</th>
-                                    <th className="p-3">ASSIGNMENT</th>
-                                    <th className="p-3">MID EXAM</th>
-                                    <th className="p-3">FINAL EXAM</th>
-                                    <th className="p-3">GRADE</th>
-                                    <th className="p-3">ACTIONS</th>
+                                    <th className="p-4">Name</th>
+                                    <th className="p-4">Attendance</th>
+                                    <th className="p-4">Assig.</th>
+                                    <th className="p-4">Mid</th>
+                                    <th className="p-4">Final</th>
+                                    <th className="p-4">Grade</th>
+                                    <th className="p-4 text-right">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                {students.map((s, i) => (
-                                    <tr key={i} className="border-t text-sm">
-                                        <td className="p-3 text-gray-600">#{i + 1}</td>
-                                        <td className="p-3">{s.name}</td>
-                                        <td className={`p-3 ${s.attendance < 75 ? 'text-red-500' : ''}`}>{s.attendance}%</td>
-                                        <td className="p-3">{s.assignment}%</td>
-                                        <td className="p-3">{s.mid}%</td>
-                                        <td className="p-3">{s.final}%</td>
-                                        <td className="p-3">
-                                            <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${s.grade === 'A' ? 'bg-green-100 text-green-700' :
-                                                    s.grade === 'B' ? 'bg-blue-100 text-blue-700' :
-                                                        s.grade === 'C' ? 'bg-yellow-100 text-yellow-700' :
-                                                            'bg-red-100 text-red-700'
-                                                }`}>{s.grade}</span>
+                            <tbody className="divide-y divide-gray-100">
+                                {students.map((s) => (
+                                    <tr key={s.id} className="hover:bg-gray-50 transition">
+                                        <td className="p-4 font-medium text-gray-800">{s.name}</td>
+                                        <td className="p-4">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-16 bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                                                    <div
+                                                        className={`h-full rounded-full ${s.attendance < 75 ? 'bg-red-500' : 'bg-green-500'}`}
+                                                        style={{ width: `${s.attendance}%` }}
+                                                    ></div>
+                                                </div>
+                                                <span className={`text-sm ${s.attendance < 75 ? 'text-red-500 font-semibold' : 'text-gray-600'}`}>
+                                                    {s.attendance}%
+                                                </span>
+                                            </div>
                                         </td>
-                                        <td className="p-3">
-                                            <button className="flex items-center gap-2 px-3 py-1 border rounded-md text-sm text-purple-600 hover:bg-purple-50">
-                                                <Pencil size={14} /> Edit
+                                        <td className="p-4 text-sm text-gray-600">{s.assignment}%</td>
+                                        <td className="p-4 text-sm text-gray-600">{s.mid}%</td>
+                                        <td className="p-4 text-sm text-gray-600">{s.final}%</td>
+                                        <td className="p-4">
+                                            <span className={`px-2.5 py-1 rounded-full text-xs font-bold leading-none ${s.grade === 'A' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'
+                                                }`}>
+                                                {s.grade}
+                                            </span>
+                                        </td>
+                                        <td className="p-4 text-right">
+                                            <button
+                                                onClick={() => handleEdit(s)}
+                                                className="p-1.5 hover:bg-purple-50 rounded-lg text-purple-600 transition"
+                                                title="Edit Performance"
+                                            >
+                                                <Pencil size={18} />
                                             </button>
                                         </td>
                                     </tr>
@@ -126,6 +172,89 @@ export default function TeacherPerformance() {
                     </div>
                 </div>
             </div>
+
+            {/* EDIT MODAL */}
+            {isEditModalOpen && selectedStudent && (
+                <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 backdrop-blur-sm">
+                    <div className="bg-white p-8 rounded-2xl w-[450px] shadow-2xl animate-in zoom-in duration-200">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-2xl font-bold text-gray-800">Edit Student Score</h2>
+                            <button
+                                onClick={() => setIsEditModalOpen(false)}
+                                className="p-1 hover:bg-gray-100 rounded-full text-gray-400 transition"
+                            >
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <div className="space-y-5">
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">Student Name</label>
+                                <input
+                                    type="text"
+                                    value={selectedStudent.name}
+                                    readOnly
+                                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-500 outline-none"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Attendance %</label>
+                                    <input
+                                        type="number"
+                                        value={selectedStudent.attendance}
+                                        onChange={(e) => setSelectedStudent({ ...selectedStudent, attendance: Number(e.target.value) })}
+                                        className="w-full p-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Assignment %</label>
+                                    <input
+                                        type="number"
+                                        value={selectedStudent.assignment}
+                                        onChange={(e) => setSelectedStudent({ ...selectedStudent, assignment: Number(e.target.value) })}
+                                        className="w-full p-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Mid Exam %</label>
+                                    <input
+                                        type="number"
+                                        value={selectedStudent.mid}
+                                        onChange={(e) => setSelectedStudent({ ...selectedStudent, mid: Number(e.target.value) })}
+                                        className="w-full p-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Final Exam %</label>
+                                    <input
+                                        type="number"
+                                        value={selectedStudent.final}
+                                        onChange={(e) => setSelectedStudent({ ...selectedStudent, final: Number(e.target.value) })}
+                                        className="w-full p-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-8 flex gap-3">
+                            <button
+                                onClick={() => setIsEditModalOpen(false)}
+                                className="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-semibold hover:bg-gray-200 transition"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSave}
+                                className="flex-1 py-3 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition shadow-lg shadow-purple-200"
+                            >
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

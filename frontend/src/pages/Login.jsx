@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import axios from "axios"
 import { GraduationCap } from "lucide-react"
 
 function Login() {
@@ -8,8 +9,9 @@ function Login() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [role, setRole] = useState("")
+  const [loading, setLoading] = useState(false)
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
 
     if (!role) {
@@ -17,18 +19,41 @@ function Login() {
       return
     }
 
-    if (role === "student") {
-      navigate("/student/dashboard")
-    } else {
-      navigate("/teacher/dashboard")
+    setLoading(true)
+
+    try {
+      // 🔥 Dynamic Backend Login Call
+      const endpoint = role === "student" ? "students" : "teachers";
+      const res = await axios.post(
+        `http://localhost:5000/api/${endpoint}/login`,
+        { email, password }
+      )
+
+      // Save token
+      localStorage.setItem("token", res.data.token)
+      localStorage.setItem("role", role)
+
+      alert("Login Successful")
+
+      // Redirect based on role
+      if (role === "student") {
+        navigate("/student/dashboard")
+      } else {
+        navigate("/teacher/dashboard")
+      }
+
+    } catch (error) {
+      alert(error.response?.data?.message || "Login Failed")
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
     <div className="w-screen h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 via-white to-purple-200">
-      
+
       <div className="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md">
-        
+
         {/* Icon */}
         <div className="flex justify-center mb-6">
           <div className="bg-gradient-to-r from-purple-500 to-indigo-500 p-4 rounded-xl shadow-md">
@@ -45,7 +70,7 @@ function Login() {
         </p>
 
         <form onSubmit={handleLogin}>
-          
+
           {/* Email */}
           <div className="mb-4">
             <label className="block text-sm font-medium mb-2">
@@ -96,15 +121,16 @@ function Login() {
           {/* Button */}
           <button
             type="submit"
+            disabled={loading}
             className="w-full py-3 rounded-lg text-white font-semibold 
                        bg-gradient-to-r from-purple-500 to-indigo-500 
                        hover:scale-105 transition duration-300"
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
 
           <p className="text-center text-sm text-gray-400 mt-4">
-            Demo credentials: Use any email/password combination
+            Use registered email & password
           </p>
         </form>
       </div>
