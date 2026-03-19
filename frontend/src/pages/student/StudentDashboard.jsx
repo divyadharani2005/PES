@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import StatCards from "../../components/StatCards";
 import {
@@ -24,6 +25,34 @@ import { useNavigate } from "react-router-dom";
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
+
+  const [predictionInput, setPredictionInput] = useState({
+    attendance: '',
+    assignment: '',
+    internal: ''
+  });
+  const [predictedScore, setPredictedScore] = useState(null);
+
+  const handlePredictionChange = (e) => {
+    setPredictionInput({
+      ...predictionInput,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handlePredict = () => {
+    const att = parseFloat(predictionInput.attendance) || 0;
+    const ass = parseFloat(predictionInput.assignment) || 0;
+    const int = parseFloat(predictionInput.internal) || 0;
+    
+    // Simple supervised ML Mock (Linear Regression Example)
+    let predicted = (att * 0.20) + (ass * 0.30) + (int * 0.50);
+    
+    if (predicted > 100) predicted = 100;
+    if (predicted < 0) predicted = 0;
+    
+    setPredictedScore(predicted.toFixed(1));
+  };
 
   const handleLogout = () => {
     localStorage.clear();
@@ -165,6 +194,72 @@ export default function StudentDashboard() {
               <p className="text-xs text-gray-500 mt-1">2026-02-11</p>
             </div>
           </div>
+        </div>
+
+        {/* FUTURE MARKS PREDICTION */}
+        <div className="bg-white rounded-xl shadow p-6 mb-8">
+          <div className="flex items-center gap-2 mb-6">
+            <TrendingUp className="text-purple-600" />
+            <h2 className="font-semibold text-lg">AI Future Marks Prediction (Supervised ML)</h2>
+          </div>
+          <div className="flex gap-6 items-end">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Attendance (%)</label>
+              <input
+                type="number"
+                name="attendance"
+                value={predictionInput.attendance}
+                onChange={handlePredictionChange}
+                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
+                placeholder="e.g. 90"
+              />
+            </div>
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Assignment Marks (%)</label>
+              <input
+                type="number"
+                name="assignment"
+                value={predictionInput.assignment}
+                onChange={handlePredictionChange}
+                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
+                placeholder="e.g. 85"
+              />
+            </div>
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Internal Marks (%)</label>
+              <input
+                type="number"
+                name="internal"
+                value={predictionInput.internal}
+                onChange={handlePredictionChange}
+                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
+                placeholder="e.g. 80"
+              />
+            </div>
+            <button
+              onClick={handlePredict}
+              className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium h-[42px]"
+            >
+              Predict
+            </button>
+          </div>
+          
+          {predictedScore !== null && (
+            <div className="mt-6 p-4 bg-purple-50 border border-purple-100 rounded-lg flex items-center justify-between">
+              <div>
+                <p className="text-sm text-purple-600 font-semibold mb-1">Prediction Result</p>
+                <p className="text-2xl font-bold text-gray-800">
+                  Predicted Final Score: <span className="text-purple-600">{predictedScore}%</span>
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-purple-600 font-semibold mb-1">Predicted Grade</p>
+                <p className="text-2xl font-bold text-gray-800">
+                  {predictedScore >= 90 ? 'A+' : predictedScore >= 80 ? 'A' : predictedScore >= 70 ? 'B' : predictedScore >= 60 ? 'C' : predictedScore >= 50 ? 'D' : 'F'}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* LOGOUT BUTTON */}
