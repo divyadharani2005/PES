@@ -4,6 +4,7 @@ const dotenv = require("dotenv")
 const connectDB = require("./config/db")
 const studentRoutes = require("./routes/studentRoutes")
 const teacherRoutes = require("./routes/teacherRoutes")
+const path = require("path")
 
 dotenv.config()
 connectDB()
@@ -18,9 +19,20 @@ app.use(express.json())
 app.use("/api/students", studentRoutes)
 app.use("/api/teachers", teacherRoutes)
 
-app.get("/", (req, res) => {
-  res.send("API Running...")
-})
+// Serve Frontend in Production, else show default response
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
+  app.get('*', (req, res) =>
+    res.sendFile(
+      path.resolve(__dirname, '../', 'frontend', 'dist', 'index.html')
+    )
+  );
+} else {
+  app.get("/", (req, res) => {
+    res.send("API Running...")
+  })
+}
 
 const PORT = process.env.PORT || 5000
 
