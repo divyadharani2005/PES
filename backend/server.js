@@ -17,7 +17,6 @@ app.use(express.json())
 // Routes
 app.use("/api/students", studentRoutes)
 app.use("/api/teachers", teacherRoutes)
-app.use("/api/students", require("./routes/studentRoutes"))
 
 app.get("/", (req, res) => {
   res.send("API Running...")
