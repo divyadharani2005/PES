@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom"
 import axios from "axios"
 import { GraduationCap } from "lucide-react"
 
+// ✅ Backend URL
+const API_URL = "https://backend-o9jg.onrender.com"
+
 function Login() {
   const navigate = useNavigate()
 
@@ -22,10 +25,11 @@ function Login() {
     setLoading(true)
 
     try {
-      // 🔥 Dynamic Backend Login Call
+      // ✅ Dynamic Backend Login Call
       const endpoint = role === "student" ? "students" : "teachers";
+
       const res = await axios.post(
-        `http://localhost:5000/api/${endpoint}/login`,
+        `${API_URL}/api/${endpoint}/login`,
         { email, password }
       )
 
