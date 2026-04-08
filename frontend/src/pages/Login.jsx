@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import axios from "axios"
 import { GraduationCap } from "lucide-react"
 
@@ -23,6 +23,24 @@ function Login() {
     }
 
     setLoading(true)
+
+    // ✅ Quick Bypass for Testing
+    if (email === "teacher@test.com" && password === "teacher123" && role === "teacher") {
+      localStorage.setItem("token", "dummy-token")
+      localStorage.setItem("role", "teacher")
+      alert("Login Successful (Test Mode)")
+      navigate("/teacher/dashboard")
+      setLoading(false)
+      return
+    }
+    if (email === "student@test.com" && password === "student123" && role === "student") {
+      localStorage.setItem("token", "dummy-token")
+      localStorage.setItem("role", "student")
+      alert("Login Successful (Test Mode)")
+      navigate("/student/dashboard")
+      setLoading(false)
+      return
+    }
 
     try {
       // ✅ Dynamic Backend Login Call
@@ -135,6 +153,12 @@ function Login() {
 
           <p className="text-center text-sm text-gray-400 mt-4">
             Use registered email & password
+          </p>
+          <p className="text-center text-sm text-gray-500 mt-4">
+            Don't have an account?{" "}
+            <Link to="/register" className="text-purple-600 font-bold hover:underline">
+              Sign Up here
+            </Link>
           </p>
         </form>
       </div>

@@ -19,15 +19,15 @@ app.use(express.json())
 app.use("/api/students", studentRoutes)
 app.use("/api/teachers", teacherRoutes)
 
-// Serve Frontend in Production, else show default response
+// Serve Frontend in Production
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../frontend/dist')));
+  const frontendPath = path.join(__dirname, '../frontend/dist');
+  app.use(express.static(frontendPath));
 
-  app.get('*', (req, res) =>
-    res.sendFile(
-      path.resolve(__dirname, '../', 'frontend', 'dist', 'index.html')
-    )
-  );
+  app.get('*', (req, res) => {
+    const indexPath = path.resolve(__dirname, '..', 'frontend', 'dist', 'index.html');
+    res.sendFile(indexPath);
+  });
 } else {
   app.get("/", (req, res) => {
     res.send("API Running...")

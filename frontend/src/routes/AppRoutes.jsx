@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom"
 import Login from "../pages/Login"
+import Register from "../pages/Register"
 import StudentDashboard from "../pages/student/StudentDashboard"
 import TeacherDashboard from "../pages/teacher/TeacherDashboard"
 import TeacherPerformance from "../pages/teacher/TeacherPerformance"
@@ -11,6 +12,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route path="/student/dashboard" element={<StudentDashboard />} />
       <Route path="/student/performance" element={<StudentPerformance />} />
       <Route path="/student/reports" element={<StudentReports />} />

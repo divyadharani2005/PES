@@ -1,4 +1,13 @@
 {
+  "name": "performance-evaluation-system",
+  "version": "1.0.0",
+  "description": "Full stack Performance Evaluation System",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build",
+    "install-backend": "cd backend && npm install",
+    "start": "cd backend && npm start",
+    "render-build": "npm install && npm run build && npm run install-backend"
+  },
   "dependencies": {
     "react-router-dom": "^7.13.0"
   }
